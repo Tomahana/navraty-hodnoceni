@@ -581,6 +581,14 @@ async function submitForm() {
 }
 
 // ── DASHBOARD ──
+function normalizeKeys(arr) {
+  const map = {'Čas':'cas','Hodnotitel':'hodnotitel','Projekt':'projekt','K1':'k1','K2':'k2','K3':'k3','K4':'k4','K5':'k5','Skóre':'score','Ext. posudky':'ext_posudky','Pořadí':'poradi','Doporučení':'doporuceni','Zdůvodnění':'zduvodneni','Poznámka':'poznamka'};
+  return arr.filter(r=>r).map(r => {
+    const n={};
+    Object.entries(r).forEach(([k,v])=>{ n[map[k]||k]=v; });
+    return n;
+  }).filter(r=>r['hodnotitel']&&r['projekt']);
+}
 async function loadDashboard() {
   document.getElementById('projects-list').innerHTML='<div class="dash-loading"><div class="dash-loading-spinner"></div><p>Načítám ze sdílené databáze…</p></div>';
   try {
@@ -612,7 +620,7 @@ function renderDashboard(hodnoceni, uzivatele) {
   // Progress (jen správce)
   if (currentUser && currentUser.role==='správce') {
     document.getElementById('progress-section').style.display='block';
-    const hodnotitele = (uzivatele.length ? uzivatele : usersData).filter(u=>u.role!=='správce');
+    const hodnotitele = (uzivatele.length ? uzivatele : usersData);
     document.getElementById('progress-grid').innerHTML = hodnotitele.map(u=>{
       const count=[...new Set(hodnoceni.filter(h=>h['hodnotitel']===u.jmeno).map(h=>h['projekt']))].length;
       const pct=Math.round(count/7*100);
