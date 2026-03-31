@@ -586,7 +586,22 @@ async function loadDashboard() {
   try {
     const res  = await fetch(SHEET_URL+'?t='+Date.now());
     const json = await res.json();
-    dashboardData = (json.hodnoceni||[]).filter(r=>r['hodnotitel']&&r['projekt']);
+    dashboardData = (json.hodnoceni || []).map(r => ({
+  cas: r.cas || r.Cas || r['čas'] || r['Čas'] || '',
+  hodnotitel: r.hodnotitel || r.Hodnotitel || r['hodnotitel '] || '',
+  projekt: r.projekt || r.Projekt || r['projekt '] || '',
+  k1: r.k1 || r.K1 || '',
+  k2: r.k2 || r.K2 || '',
+  k3: r.k3 || r.K3 || '',
+  k4: r.k4 || r.K4 || '',
+  k5: r.k5 || r.K5 || '',
+  score: r.score || r.Score || '',
+  ext_posudky: r.ext_posudky || r['ext_posudky'] || r['ext. posudky'] || '',
+  poradi: r.poradi || r.Poradi || r.pořadí || '',
+  doporuceni: r.doporuceni || r.Doporuceni || r.doporučení || '',
+  zduvodneni: r.zduvodneni || r.Zduvodneni || r.zdůvodnění || '',
+  poznamka: r.poznamka || r.Poznamka || r.poznámka || ''
+})).filter(r => r.hodnotitel && r.projekt);
     // Aktualizuj ext data
     (json.ext||[]).forEach(e => { extData[e.projekt] = e; });
     renderDashboard(dashboardData, json.uzivatele||[]);
