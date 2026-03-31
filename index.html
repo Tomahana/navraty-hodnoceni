@@ -23,24 +23,26 @@ body { font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(
 /* LOGIN */
 #screen-login { align-items: center; justify-content: center; background: var(--ink); position: relative; overflow: hidden; }
 #screen-login::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 20% 80%, rgba(181,56,30,0.18) 0%, transparent 60%), radial-gradient(ellipse 60% 80% at 80% 20%, rgba(26,74,122,0.15) 0%, transparent 60%); }
-.login-card { position: relative; z-index: 1; background: rgba(245,242,236,0.06); border: 1px solid rgba(245,242,236,0.12); backdrop-filter: blur(20px); border-radius: 16px; padding: 52px 48px; width: 420px; max-width: calc(100vw - 32px); text-align: center; }
+.login-card { position: relative; z-index: 1; background: rgba(245,242,236,0.06); border: 1px solid rgba(245,242,236,0.12); backdrop-filter: blur(20px); border-radius: 16px; padding: 52px 48px; width: 440px; max-width: calc(100vw - 32px); text-align: center; }
 .login-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(181,56,30,0.2); border: 1px solid rgba(181,56,30,0.4); color: #e8907a; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; padding: 5px 12px; border-radius: 100px; margin-bottom: 28px; }
 .login-badge::before { content: ''; width: 6px; height: 6px; background: #e8907a; border-radius: 50%; animation: pulse 2s infinite; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
 .login-title { font-family: 'DM Serif Display', serif; font-size: 32px; color: var(--paper); line-height: 1.2; margin-bottom: 8px; }
 .login-subtitle { color: rgba(245,242,236,0.5); font-size: 13px; margin-bottom: 36px; }
 .login-label { display: block; text-align: left; color: rgba(245,242,236,0.6); font-size: 11px; font-family: 'DM Mono', monospace; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
-.login-name-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-.login-input { width: 100%; background: rgba(245,242,236,0.07); border: 1px solid rgba(245,242,236,0.15); border-radius: var(--r); color: var(--paper); font-family: 'DM Sans', sans-serif; font-size: 15px; padding: 12px 16px; transition: border-color .2s; outline: none; }
-.login-input:focus { border-color: rgba(181,56,30,.6); background: rgba(245,242,236,.1); }
-.login-input::placeholder { color: rgba(245,242,236,.25); }
+.login-field-wrap { margin-bottom: 16px; }
+.login-select { width: 100%; background: rgba(245,242,236,0.07); border: 1px solid rgba(245,242,236,0.15); border-radius: var(--r); color: var(--paper); font-family: 'DM Sans', sans-serif; font-size: 15px; padding: 12px 16px; outline: none; transition: border-color .2s; appearance: none; cursor: pointer; }
+.login-select:focus { border-color: rgba(181,56,30,.6); }
+.login-select option { background: #1a2a3a; color: var(--paper); }
 .pin-row { margin-bottom: 28px; }
 .pin-input { width: 100%; background: rgba(245,242,236,.07); border: 1px solid rgba(245,242,236,.15); border-radius: var(--r); color: var(--paper); font-family: 'DM Mono', monospace; font-size: 18px; letter-spacing: .2em; padding: 14px 16px; text-align: center; transition: border-color .2s; outline: none; }
 .pin-input:focus { border-color: rgba(181,56,30,.6); }
 .login-btn { width: 100%; background: var(--accent); color: white; border: none; border-radius: var(--r); font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; padding: 14px; cursor: pointer; transition: background .2s, transform .1s; }
 .login-btn:hover { background: var(--accent-mid); }
 .login-btn:active { transform: scale(.99); }
+.login-btn:disabled { background: rgba(181,56,30,.4); cursor: not-allowed; }
 .login-error { margin-top: 12px; color: #e8907a; font-size: 13px; min-height: 20px; }
+.login-loading { color: rgba(245,242,236,.4); font-size: 12px; font-family: 'DM Mono', monospace; margin-bottom: 20px; }
 
 /* SHELL */
 .app-header { background: var(--ink); padding: 0 32px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
@@ -50,6 +52,7 @@ body { font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(
 .header-sep { width: 1px; height: 20px; background: rgba(245,242,236,.15); }
 .header-user { font-size: 13px; color: rgba(245,242,236,.5); }
 .header-user strong { color: rgba(245,242,236,.85); font-weight: 500; }
+.header-role { font-size: 10px; font-family: 'DM Mono', monospace; letter-spacing: .08em; color: rgba(245,242,236,.3); text-transform: uppercase; margin-left: 6px; }
 .nav-btn { background: none; border: none; color: rgba(245,242,236,.5); font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; padding: 6px 14px; border-radius: 4px; cursor: pointer; transition: color .15s, background .15s; }
 .nav-btn:hover { color: var(--paper); background: rgba(245,242,236,.08); }
 .nav-btn.active { color: var(--paper); background: rgba(181,56,30,.25); }
@@ -71,9 +74,8 @@ body { font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(
 .project-info { margin-top: 12px; padding: 12px 14px; background: var(--paper); border-radius: var(--r); display: none; }
 .project-info.visible { display: block; }
 .project-info-row { display: flex; gap: 24px; flex-wrap: wrap; }
-.project-info-item { font-size: 13px; }
 .pil { font-family: 'DM Mono', monospace; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-60); display: block; margin-bottom: 2px; }
-.piv { color: var(--ink); font-weight: 500; }
+.piv { color: var(--ink); font-weight: 500; font-size: 13px; }
 .section-card { background: white; border: 1.5px solid var(--ink-20); border-radius: 10px; padding: 24px; margin-bottom: 20px; }
 .section-card-title { font-family: 'DM Serif Display', serif; font-size: 17px; color: var(--ink); margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--ink-10); display: flex; align-items: center; gap: 10px; }
 .section-num { width: 26px; height: 26px; background: var(--ink); color: var(--paper); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; font-size: 12px; flex-shrink: 0; }
@@ -105,12 +107,16 @@ select.form-field { appearance: none; background-image: url("data:image/svg+xml,
 .submit-btn:active { transform: scale(.99); }
 .submit-btn:disabled { background: var(--ink-20); cursor: not-allowed; }
 
+/* SPRÁVCE BANNER */
+.admin-banner { background: var(--blue-light); border: 1.5px solid rgba(26,74,122,.2); border-radius: 10px; padding: 14px 20px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--blue); }
+.admin-banner-icon { font-size: 18px; }
+
 /* OVERLAY */
 .sending-overlay { position: fixed; inset: 0; background: rgba(15,25,35,.7); z-index: 999; display: none; align-items: center; justify-content: center; flex-direction: column; gap: 16px; }
 .sending-overlay.show { display: flex; }
 .sending-spinner { width: 40px; height: 40px; border: 3px solid rgba(245,242,236,.2); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.sending-text { color: var(--paper); font-size: 14px; font-family: 'DM Mono', monospace; letter-spacing: .05em; }
+.sending-text { color: var(--paper); font-size: 14px; font-family: 'DM Mono', monospace; }
 
 /* DASHBOARD */
 .dashboard-container { max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; }
@@ -166,15 +172,23 @@ select.form-field { appearance: none; background-image: url("data:image/svg+xml,
 .empty-state { text-align: center; padding: 60px 20px; }
 .empty-state-icon { font-size: 40px; margin-bottom: 16px; opacity: .3; }
 .empty-state h3 { font-family: 'DM Serif Display', serif; font-size: 20px; color: var(--ink); margin-bottom: 8px; }
+
+/* PROGRESS přehled */
+.progress-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-bottom: 28px; }
+.progress-card { background: white; border: 1.5px solid var(--ink-20); border-radius: 10px; padding: 16px; }
+.progress-name { font-weight: 600; font-size: 13px; margin-bottom: 8px; }
+.progress-bar-wrap { background: var(--paper-dark); border-radius: 100px; height: 6px; margin-bottom: 6px; }
+.progress-bar { background: var(--accent); border-radius: 100px; height: 6px; transition: width .5s; }
+.progress-count { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink-60); }
+
 .toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(80px); color: white; font-size: 14px; font-weight: 500; padding: 14px 28px; border-radius: 100px; z-index: 9999; transition: transform .3s cubic-bezier(.34,1.56,.64,1); white-space: nowrap; }
 .toast.show { transform: translateX(-50%) translateY(0); }
 @media (max-width:600px) {
   .app-header { padding: 0 16px; }
   .form-container, .dashboard-container { padding: 24px 16px 60px; }
   .criterion-row { flex-direction: column; }
-  .project-card-right { gap: 10px; }
+  .project-card-right { gap: 8px; }
   .login-card { padding: 36px 24px; }
-  .login-name-row { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -184,18 +198,24 @@ select.form-field { appearance: none; background-image: url("data:image/svg+xml,
   <div class="login-card">
     <div class="login-badge">OP JAK Návraty 2026</div>
     <h1 class="login-title">Hodnoticí<br>komise</h1>
-    <p class="login-subtitle">Univerzita Hradec Králové · OVTZ</p>
-    <label class="login-label">Vaše jméno</label>
-    <div class="login-name-row">
-      <input class="login-input" id="input-jmeno" type="text" placeholder="Jméno" autocomplete="given-name">
-      <input class="login-input" id="input-prijmeni" type="text" placeholder="Příjmení" autocomplete="family-name">
+    <p class="login-subtitle">Univerzita Hradec Králové</p>
+
+    <div id="login-loading" class="login-loading">Načítám seznam členů…</div>
+
+    <div id="login-form" style="display:none;">
+      <div class="login-field-wrap">
+        <label class="login-label">Vyberte své jméno</label>
+        <select class="login-select" id="select-user">
+          <option value="">— Vyberte —</option>
+        </select>
+      </div>
+      <div class="pin-row">
+        <label class="login-label">Váš přístupový kód</label>
+        <input class="pin-input" id="input-pin" type="password" placeholder="· · · · · ·" maxlength="20" autocomplete="off">
+      </div>
+      <button class="login-btn" id="login-btn" onclick="doLogin()">Vstoupit →</button>
+      <div class="login-error" id="login-error"></div>
     </div>
-    <div class="pin-row">
-      <label class="login-label">Přístupový kód</label>
-      <input class="pin-input" id="input-pin" type="password" placeholder="· · · · · · ·" maxlength="20" autocomplete="off">
-    </div>
-    <button class="login-btn" onclick="doLogin()">Vstoupit do aplikace →</button>
-    <div class="login-error" id="login-error"></div>
   </div>
 </div>
 
@@ -204,7 +224,10 @@ select.form-field { appearance: none; background-image: url("data:image/svg+xml,
     <div class="app-header-left">
       <div class="app-logo">OP JAK <span>Návraty</span></div>
       <div class="header-sep"></div>
-      <div class="header-user">Přihlášen: <strong id="header-username">—</strong></div>
+      <div class="header-user">
+        <strong id="header-username">—</strong>
+        <span class="header-role" id="header-role"></span>
+      </div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;">
       <nav style="display:flex;gap:4px;">
@@ -217,10 +240,14 @@ select.form-field { appearance: none; background-image: url("data:image/svg+xml,
 
   <div id="tab-form" class="tab-panel active">
     <div class="form-container">
+      <div id="admin-banner" class="admin-banner" style="display:none;">
+        <span class="admin-banner-icon">🔧</span>
+        <div>Jste přihlášena jako <strong>správce</strong> — vidíte přehled všech hodnocení a můžete exportovat data.</div>
+      </div>
       <div class="form-header">
         <div class="form-eyebrow">Hodnoticí formulář</div>
         <h2 class="form-title">Závěrečné hodnocení projektu</h2>
-        <p class="form-desc">Ohodnoťte projekt dle níže uvedených kritérií na stupnici 1–5. Hodnocení se uloží do sdílené databáze.</p>
+        <p class="form-desc">Ohodnoťte projekt na stupnici 1–5. Hodnocení se uloží do sdílené databáze.</p>
       </div>
 
       <div class="project-selector">
@@ -237,10 +264,10 @@ select.form-field { appearance: none; background-image: url("data:image/svg+xml,
         </select>
         <div class="project-info" id="project-info">
           <div class="project-info-row">
-            <div class="project-info-item"><span class="pil">Číslo</span><span class="piv" id="pinfo-id">—</span></div>
-            <div class="project-info-item"><span class="pil">Řešitel/ka</span><span class="piv" id="pinfo-resitel">—</span></div>
-            <div class="project-info-item"><span class="pil">Součást</span><span class="piv" id="pinfo-soucast">—</span></div>
-            <div class="project-info-item"><span class="pil">Rozpočet</span><span class="piv" id="pinfo-rozpocet">—</span></div>
+            <div><span class="pil">Číslo</span><span class="piv" id="pinfo-id">—</span></div>
+            <div><span class="pil">Řešitel/ka</span><span class="piv" id="pinfo-resitel">—</span></div>
+            <div><span class="pil">Součást</span><span class="piv" id="pinfo-soucast">—</span></div>
+            <div><span class="pil">Rozpočet</span><span class="piv" id="pinfo-rozpocet">—</span></div>
           </div>
         </div>
       </div>
@@ -334,7 +361,7 @@ select.form-field { appearance: none; background-image: url("data:image/svg+xml,
           <textarea class="form-field" id="zduvodneni" placeholder="Stručné zdůvodnění…"></textarea>
         </div>
         <div class="field-group">
-          <label class="field-label">Interní poznámka (nezobrazuje se v souhrnu)</label>
+          <label class="field-label">Interní poznámka</label>
           <textarea class="form-field" id="poznamka" placeholder="Nepovinné…" style="min-height:70px;"></textarea>
         </div>
       </div>
@@ -347,7 +374,7 @@ select.form-field { appearance: none; background-image: url("data:image/svg+xml,
       <div class="dashboard-header">
         <div>
           <h2 class="dashboard-title">Přehled hodnocení</h2>
-          <div class="dashboard-meta" id="dash-meta">Načítám data…</div>
+          <div class="dashboard-meta" id="dash-meta">Načítám…</div>
         </div>
         <div class="dash-actions">
           <button class="refresh-btn" onclick="loadDashboard()">↻ Obnovit</button>
@@ -360,6 +387,10 @@ select.form-field { appearance: none; background-image: url("data:image/svg+xml,
         <div class="stat-card"><div class="stat-label">Financovat (většina)</div><div class="stat-value" id="stat-fin">—</div><div class="stat-sub">projektů</div></div>
         <div class="stat-card"><div class="stat-label">Průměrné skóre</div><div class="stat-value" id="stat-avg">—</div><div class="stat-sub">z 5.00</div></div>
       </div>
+      <div id="progress-section" style="margin-bottom:28px;display:none;">
+        <div style="font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-60);margin-bottom:12px;">Postup hodnocení členů komise</div>
+        <div class="progress-grid" id="progress-grid"></div>
+      </div>
       <div id="projects-list"><div class="dash-loading"><div class="dash-loading-spinner"></div><p>Načítám ze sdílené databáze…</p></div></div>
     </div>
   </div>
@@ -367,13 +398,13 @@ select.form-field { appearance: none; background-image: url("data:image/svg+xml,
 
 <div class="sending-overlay" id="sending-overlay">
   <div class="sending-spinner"></div>
-  <div class="sending-text">Ukládám hodnocení do sdílené databáze…</div>
+  <div class="sending-text">Ukládám hodnocení…</div>
 </div>
 <div class="toast" id="toast"></div>
 
 <script>
-const PIN = 'N2026_1';
 const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzHP33lgMkazi8PW8fIhKJG_YiUBwY_ZMiHycpIdUoJvAHcnziJZuMrh5J7DMj3FBM_/exec';
+const USERS_URL = 'https://raw.githubusercontent.com/Tomahana/navraty-hodnoceni/main/users.json';
 
 const PROJECTS = {
   'NAVRATY-003': { nazev: 'Alternativní pedagogika v českých školách', resitel: 'Mgr. Šárka Klímová, Ph.D.', soucast: 'PdF', rozpocet: '3 947 270 Kč' },
@@ -386,19 +417,43 @@ const PROJECTS = {
 };
 
 let currentUser = null;
+let usersData = [];
 let dashboardData = [];
 
+// Načti uživatele při startu
+async function loadUsers() {
+  try {
+    const res = await fetch(USERS_URL + '?t=' + Date.now());
+    const json = await res.json();
+    usersData = json.users || [];
+    const sel = document.getElementById('select-user');
+    usersData.forEach(u => {
+      const opt = document.createElement('option');
+      opt.value = u.jmeno;
+      opt.textContent = u.jmeno + (u.role === 'správce' ? ' (správce)' : '');
+      sel.appendChild(opt);
+    });
+    document.getElementById('login-loading').style.display = 'none';
+    document.getElementById('login-form').style.display = 'block';
+  } catch(e) {
+    document.getElementById('login-loading').textContent = 'Chyba načítání. Obnovte stránku.';
+  }
+}
+loadUsers();
+
 function doLogin() {
-  const j = document.getElementById('input-jmeno').value.trim();
-  const p = document.getElementById('input-prijmeni').value.trim();
+  const jmeno = document.getElementById('select-user').value;
   const pin = document.getElementById('input-pin').value.trim();
   const err = document.getElementById('login-error');
-  if (!j || !p) { err.textContent = 'Vyplňte jméno a příjmení.'; return; }
-  if (pin !== PIN) { err.textContent = 'Nesprávný přístupový kód.'; return; }
-  currentUser = `${j} ${p}`;
-  document.getElementById('header-username').textContent = currentUser;
+  if (!jmeno) { err.textContent = 'Vyberte prosím své jméno.'; return; }
+  const user = usersData.find(u => u.jmeno === jmeno);
+  if (!user || pin !== user.pin) { err.textContent = 'Nesprávný přístupový kód.'; return; }
+  currentUser = user;
+  document.getElementById('header-username').textContent = user.jmeno;
+  document.getElementById('header-role').textContent = user.role;
   document.getElementById('screen-login').classList.remove('active');
   document.getElementById('screen-app').classList.add('active');
+  if (user.role === 'správce') document.getElementById('admin-banner').style.display = 'flex';
   err.textContent = '';
 }
 document.getElementById('input-pin').addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
@@ -407,7 +462,9 @@ function doLogout() {
   currentUser = null;
   document.getElementById('screen-app').classList.remove('active');
   document.getElementById('screen-login').classList.add('active');
-  ['input-pin','input-jmeno','input-prijmeni'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('input-pin').value = '';
+  document.getElementById('select-user').value = '';
+  document.getElementById('admin-banner').style.display = 'none';
 }
 
 function switchTab(tab) {
@@ -437,8 +494,7 @@ function getRadioVal(name) {
 
 function calcScore() {
   const vals = ['k1','k2','k3','k4','k5'].map(getRadioVal).filter(v=>v!==null);
-  const el = document.getElementById('live-score');
-  el.textContent = vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(2) : '—';
+  document.getElementById('live-score').textContent = vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(2) : '—';
 }
 
 function resetForm() {
@@ -459,7 +515,7 @@ async function submitForm() {
 
   const zaznam = {
     cas: new Date().toLocaleString('cs-CZ'),
-    hodnotitel: currentUser, projekt, k1, k2, k3, k4, k5,
+    hodnotitel: currentUser.jmeno, projekt, k1, k2, k3, k4, k5,
     score: parseFloat(((k1+k2+k3+k4+k5)/5).toFixed(2)),
     ext_posudky: document.getElementById('ext-posudky').value||'',
     poradi: document.getElementById('poradi').value||'',
@@ -470,7 +526,6 @@ async function submitForm() {
 
   document.getElementById('sending-overlay').classList.add('show');
   document.getElementById('submit-btn').disabled=true;
-
   try {
     await fetch(SHEET_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify(zaznam) });
     document.getElementById('sending-overlay').classList.remove('show');
@@ -486,30 +541,40 @@ async function submitForm() {
 
 async function loadDashboard() {
   document.getElementById('projects-list').innerHTML='<div class="dash-loading"><div class="dash-loading-spinner"></div><p>Načítám ze sdílené databáze…</p></div>';
-  document.getElementById('dash-meta').textContent='Načítám…';
   try {
     const res = await fetch(SHEET_URL+'?t='+Date.now());
     const json = await res.json();
     dashboardData = (json.data||[]).filter(r=>r['Hodnotitel']&&r['Projekt']);
     renderDashboard(dashboardData);
   } catch(e) {
-    document.getElementById('projects-list').innerHTML='<div class="empty-state"><div class="empty-state-icon">⚠</div><h3>Nepodařilo se načíst data</h3><p>Zkontrolujte připojení a klikněte Obnovit.</p></div>';
-    document.getElementById('dash-meta').textContent='Chyba při načítání.';
+    document.getElementById('projects-list').innerHTML='<div class="empty-state"><div class="empty-state-icon">⚠</div><h3>Nepodařilo se načíst data</h3><p>Klikněte Obnovit.</p></div>';
   }
 }
 
 function renderDashboard(hodnoceni) {
-  document.getElementById('stat-total').textContent=hodnoceni.length;
-  document.getElementById('stat-projects').textContent=[...new Set(hodnoceni.map(h=>h['Projekt']))].length;
-  const scores=hodnoceni.map(h=>parseFloat(h['Skóre'])).filter(s=>!isNaN(s));
-  document.getElementById('stat-avg').textContent=scores.length?(scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(2):'—';
-  document.getElementById('stat-fin').textContent=Object.keys(PROJECTS).filter(pid=>{
+  const total = hodnoceni.length;
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-projects').textContent = [...new Set(hodnoceni.map(h=>h['Projekt']))].length;
+  const scores = hodnoceni.map(h=>parseFloat(h['Skóre'])).filter(s=>!isNaN(s));
+  document.getElementById('stat-avg').textContent = scores.length ? (scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(2) : '—';
+  document.getElementById('stat-fin').textContent = Object.keys(PROJECTS).filter(pid=>{
     const rev=hodnoceni.filter(h=>h['Projekt']===pid);
     return rev.filter(h=>h['Doporučení']==='Financovat').length>rev.length/2&&rev.length>0;
   }).length;
 
   const members=[...new Set(hodnoceni.map(h=>h['Hodnotitel']))];
-  document.getElementById('dash-meta').textContent=`${hodnoceni.length} hodnocení od ${members.length} členů · Aktualizováno ${new Date().toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'})}`;
+  document.getElementById('dash-meta').textContent=`${total} hodnocení od ${members.length} členů · ${new Date().toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'})}`;
+
+  // Progress členů (pouze pro správce)
+  if (currentUser && currentUser.role === 'správce') {
+    const pg = document.getElementById('progress-grid');
+    document.getElementById('progress-section').style.display = 'block';
+    pg.innerHTML = usersData.filter(u=>u.role!=='správce'||u.jmeno===currentUser.jmeno).map(u => {
+      const count = [...new Set(hodnoceni.filter(h=>h['Hodnotitel']===u.jmeno).map(h=>h['Projekt']))].length;
+      const pct = Math.round(count/7*100);
+      return `<div class="progress-card"><div class="progress-name">${u.jmeno}</div><div class="progress-bar-wrap"><div class="progress-bar" style="width:${pct}%"></div></div><div class="progress-count">${count}/7 projektů</div></div>`;
+    }).join('');
+  }
 
   const sorted = Object.keys(PROJECTS).map(pid=>{
     const reviews=hodnoceni.filter(h=>h['Projekt']===pid);
@@ -521,21 +586,21 @@ function renderDashboard(hodnoceni) {
   }).sort((a,b)=>b.avg-a.avg);
 
   const container=document.getElementById('projects-list');
-  if(!hodnoceni.length){container.innerHTML='<div class="empty-state"><div class="empty-state-icon">📋</div><h3>Zatím žádná hodnocení</h3><p>Jakmile členové začnou hodnotit, výsledky se zobrazí zde.</p></div>';return;}
+  if(!total){container.innerHTML='<div class="empty-state"><div class="empty-state-icon">📋</div><h3>Zatím žádná hodnocení</h3><p>Jakmile členové začnou hodnotit, výsledky se zobrazí zde.</p></div>';return;}
 
   container.innerHTML='<div class="projects-grid">'+sorted.map(({pid,reviews,avg,rec},i)=>{
     const rank=i+1,proj=PROJECTS[pid];
     const rc=rec==='Financovat'?'rec-fin':rec==='Nefinancovat'?'rec-nefin':rec==='Podmíněně financovat'?'rec-pod':'rec-ceka';
     const rt=rec||(reviews.length?'Různá':'Čeká');
     const rh=reviews.map(r=>`<div class="review-item"><div class="review-header"><span class="review-author">${r['Hodnotitel']}</span><div class="review-scores"><span class="review-score-pill">K1 <span>${r['K1']||'—'}</span></span><span class="review-score-pill">K2 <span>${r['K2']||'—'}</span></span><span class="review-score-pill">K3 <span>${r['K3']||'—'}</span></span><span class="review-score-pill">K4 <span>${r['K4']||'—'}</span></span><span class="review-score-pill">K5 <span>${r['K5']||'—'}</span></span>${r['Ext. posudky']?`<span class="review-score-pill">Ext <span>${r['Ext. posudky']}</span></span>`:''} ${r['Pořadí']?`<span class="review-score-pill">Pořadí <span>${r['Pořadí']}</span></span>`:''}</div></div>${r['Zdůvodnění']?`<div class="review-comment">"${r['Zdůvodnění']}"</div>`:''}</div>`).join('');
-    return `<div class="project-card" id="pc-${pid}"><div class="project-card-header" onclick="toggleCard('${pid}')"><div class="project-card-left"><div class="project-rank rank-${rank}">${rank}</div><div><div class="project-card-name">${proj.nazev}</div><div class="project-card-id">${pid} · ${proj.resitel} · ${proj.soucast}</div></div></div><div class="project-card-right"><div class="score-badge"><div class="score-badge-val">${reviews.length?avg.toFixed(2):'—'}</div><span class="score-badge-label">průměr</span></div><div class="votes-count"><strong>${reviews.length}</strong>hodnocení</div><span class="rec-pill ${rc}">${rt}</span><div class="expand-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 4l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div></div></div><div class="project-card-detail"><div class="detail-title">Hodnocení členů komise (${reviews.length})</div><div class="reviews-list">${rh||'<p style="color:var(--ink-60);font-size:13px;">Zatím žádné hodnocení.</p>'}</div></div></div>`;
+    return `<div class="project-card" id="pc-${pid}"><div class="project-card-header" onclick="toggleCard('${pid}')"><div class="project-card-left"><div class="project-rank rank-${rank}">${rank}</div><div><div class="project-card-name">${proj.nazev}</div><div class="project-card-id">${pid} · ${proj.resitel} · ${proj.soucast}</div></div></div><div class="project-card-right"><div class="score-badge"><div class="score-badge-val">${reviews.length?avg.toFixed(2):'—'}</div><span class="score-badge-label">průměr</span></div><div class="votes-count"><strong>${reviews.length}</strong>hodnocení</div><span class="rec-pill ${rc}">${rt}</span><div class="expand-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 4l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div></div></div><div class="project-card-detail"><div class="detail-title">Hodnocení (${reviews.length})</div><div class="reviews-list">${rh||'<p style="color:var(--ink-60);font-size:13px;">Zatím žádné.</p>'}</div></div></div>`;
   }).join('')+'</div>';
 }
 
 function toggleCard(pid){document.getElementById('pc-'+pid).classList.toggle('expanded');}
 
 function exportCSV(){
-  if(!dashboardData.length){showToast('Nejprve načtěte data přes Obnovit.','err');return;}
+  if(!dashboardData.length){showToast('Nejprve načtěte data.','err');return;}
   const h=['Čas','Hodnotitel','Projekt','K1','K2','K3','K4','K5','Skóre','Ext. posudky','Pořadí','Doporučení','Zdůvodnění'];
   const rows=dashboardData.map(r=>h.map(k=>`"${(r[k]||'').toString().replace(/"/g,'""')}"`).join(';'));
   const a=document.createElement('a');
