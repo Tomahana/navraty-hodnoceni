@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hodnoticí komise — OP JAK Návraty</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink: #0f1923;
+  --ink-60: #0f192399;
+  --ink-20: #0f192333;
+  --ink-10: #0f192318;
+  --paper: #f5f2ec;
+  --paper-dark: #ede9e0;
+  --accent: #b5381e;
+  --accent-light: #f5e8e5;
+  --accent-mid: #d4502f;
+  --gold: #c49a2a;
+  --gold-light: #fdf6e3;
+  --green: #2a6649;
+  --green-light: #e8f3ee;
+  --blue: #1a4a7a;
+  --blue-light: #e8f0f9;
+  --r: 6px;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ── SCREEN MANAGER ── */
+.screen { display: none; min-height: 100vh; }
+.screen.active { display: flex; flex-direction: column; }
+
+/* ══════════════════════════════════════════
+   LOGIN SCREEN
+══════════════════════════════════════════ */
+#screen-login {
+  align-items: center;
+  justify-content: center;
+  background: var(--ink);
+  position: relative;
+  overflow: hidden;
+}
+
+#screen-login::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse 80% 60% at 20% 80%, rgba(181,56,30,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 80% 20%, rgba(26,74,122,0.15) 0%, transparent 60%);
+}
+
+.login-card {
+  position: relative;
+  z-index: 1;
+  background: rgba(245,242,236,0.06);
+  border: 1px solid rgba(245,242,236,0.12);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 52px 48px;
+  width: 420px;
+  max-width: calc(100vw - 32px);
+  text-align: center;
+}
+
+.login-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(181,56,30,0.2);
+  border: 1px solid rgba(181,56,30,0.4);
+  color: #e8907a;
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border-radius: 100px;
+  margin-bottom: 28px;
+}
+
+.login-badge::before {
+  content: '';
+  width: 6px; height: 6px;
+  background: #e8907a;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.login-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 32px;
+  color: var(--paper);
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+
+.login-subtitle {
+  color: rgba(245,242,236,0.5);
+  font-size: 13px;
+  margin-bottom: 36px;
+  letter-spacing: 0.02em;
+}
+
+.login-label {
+  display: block;
+  text-align: left;
+  color: rgba(245,242,236,0.6);
+  font-size: 11px;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.login-name-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.login-input {
+  width: 100%;
+  background: rgba(245,242,236,0.07);
+  border: 1px solid rgba(245,242,236,0.15);
+  border-radius: var(--r);
+  color: var(--paper);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  padding: 12px 16px;
+  transition: border-color 0.2s, background 0.2s;
+  outline: none;
+}
+
+.login-input:focus {
+  border-color: rgba(181,56,30,0.6);
+  background: rgba(245,242,236,0.1);
+}
+
+.login-input::placeholder { color: rgba(245,242,236,0.25); }
+
+.pin-row { margin-bottom: 28px; }
+
+.pin-input {
+  width: 100%;
+  background: rgba(245,242,236,0.07);
+  border: 1px solid rgba(245,242,236,0.15);
+  border-radius: var(--r);
+  color: var(--paper);
+  font-family: 'DM Mono', monospace;
+  font-size: 18px;
+  letter-spacing: 0.2em;
+  padding: 14px 16px;
+  text-align: center;
+  transition: border-color 0.2s;
+  outline: none;
+}
+
+.pin-input:focus { border-color: rgba(181,56,30,0.6); }
+
+.login-btn {
+  width: 100%;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: var(--r);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 14px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  letter-spacing: 0.02em;
+}
+
+.login-btn:hover { background: var(--accent-mid); }
+.login-btn:active { transform: scale(0.99); }
+
+.login-error {
+  margin-top: 12px;
+  color: #e8907a;
+  font-size: 13px;
+  min-height: 20px;
+}
+
+/* ══════════════════════════════════════════
+   APP SHELL
+══════════════════════════════════════════ */
+#screen-app {
+  flex-direction: column;
+}
+
+.app-header {
+  background: var(--ink);
+  padding: 0 32px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.app-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.app-logo {
+  font-family: 'DM Serif Display', serif;
+  font-size: 17px;
+  color: var(--paper);
+  letter-spacing: 0.01em;
+}
+
+.app-logo span {
+  color: var(--accent);
+  font-style: italic;
+}
+
+.header-sep {
+  width: 1px;
+  height: 20px;
+  background: rgba(245,242,236,0.15);
+}
+
+.header-user {
+  font-size: 13px;
+  color: rgba(245,242,236,0.5);
+}
+
+.header-user strong {
+  color: rgba(245,242,236,0.85);
+  font-weight: 500;
+}
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.nav-btn {
+  background: none;
+  border: none;
+  color: rgba(245,242,236,0.5);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+  letter-spacing: 0.02em;
+}
+
+.nav-btn:hover { color: var(--paper); background: rgba(245,242,236,0.08); }
+.nav-btn.active { color: var(--paper); background: rgba(181,56,30,0.25); }
+
+.logout-btn {
+  background: none;
+  border: 1px solid rgba(245,242,236,0.15);
+  color: rgba(245,242,236,0.4);
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  padding: 5px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 12px;
+  transition: all 0.15s;
+}
+
+.logout-btn:hover { color: var(--paper); border-color: rgba(245,242,236,0.3); }
+
+/* ── TABS ── */
+.tab-panel { display: none; flex: 1; }
+.tab-panel.active { display: block; }
+
+/* ══════════════════════════════════════════
+   FORM TAB
+══════════════════════════════════════════ */
+.form-container {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+.form-header {
+  margin-bottom: 36px;
+}
+
+.form-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.form-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 28px;
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+.form-desc {
+  color: var(--ink-60);
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+/* Project selector */
+.project-selector {
+  background: white;
+  border: 1.5px solid var(--ink-20);
+  border-radius: 10px;
+  padding: 24px;
+  margin-bottom: 28px;
+  transition: border-color 0.2s;
+}
+
+.project-selector:focus-within { border-color: var(--accent); }
+
+.field-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-60);
+  margin-bottom: 10px;
+  display: block;
+}
+
+.project-select {
+  width: 100%;
+  appearance: none;
+  background: var(--paper) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%230f1923' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 14px center;
+  border: 1.5px solid var(--ink-20);
+  border-radius: var(--r);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  color: var(--ink);
+  padding: 12px 40px 12px 14px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.project-select:focus { border-color: var(--accent); }
+
+.project-info {
+  margin-top: 12px;
+  padding: 12px 14px;
+  background: var(--paper);
+  border-radius: var(--r);
+  display: none;
+}
+
+.project-info.visible { display: block; }
+
+.project-info-row {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.project-info-item {
+  font-size: 13px;
+}
+
+.project-info-item .pil {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-60);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.project-info-item .piv {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+/* Scoring section */
+.section-card {
+  background: white;
+  border: 1.5px solid var(--ink-20);
+  border-radius: 10px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+
+.section-card-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 17px;
+  color: var(--ink);
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--ink-10);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-num {
+  width: 26px; height: 26px;
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+/* Star rating */
+.criterion-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--ink-10);
+}
+
+.criterion-row:last-child { border-bottom: none; padding-bottom: 0; }
+.criterion-row:first-child { padding-top: 0; }
+
+.criterion-info { flex: 1; }
+
+.criterion-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+
+.criterion-desc {
+  font-size: 12px;
+  color: var(--ink-60);
+  line-height: 1.4;
+}
+
+.star-rating {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.star-rating input[type="radio"] { display: none; }
+
+.star-rating label {
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  border-radius: 6px;
+  border: 1.5px solid var(--ink-20);
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  color: var(--ink-60);
+  transition: all 0.15s;
+  user-select: none;
+}
+
+.star-rating label:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-light);
+}
+
+.star-rating input:checked + label {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
+  font-weight: 600;
+}
+
+/* Score display */
+.score-display {
+  background: var(--gold-light);
+  border: 1.5px solid rgba(196,154,42,0.3);
+  border-radius: 10px;
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.score-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.score-value {
+  font-family: 'DM Serif Display', serif;
+  font-size: 36px;
+  color: var(--gold);
+  line-height: 1;
+}
+
+.score-max {
+  font-size: 16px;
+  color: rgba(196,154,42,0.6);
+}
+
+/* Text fields */
+.field-group { margin-bottom: 18px; }
+
+.field-group:last-child { margin-bottom: 0; }
+
+textarea.form-field, select.form-field, input.form-field {
+  width: 100%;
+  background: var(--paper);
+  border: 1.5px solid var(--ink-20);
+  border-radius: var(--r);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: var(--ink);
+  padding: 12px 14px;
+  outline: none;
+  transition: border-color 0.2s;
+  resize: vertical;
+}
+
+textarea.form-field:focus,
+select.form-field:focus,
+input.form-field:focus { border-color: var(--accent); }
+
+textarea.form-field { min-height: 100px; }
+
+select.form-field {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%230f1923' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px;
+  cursor: pointer;
+}
+
+.ranking-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ranking-row input.form-field {
+  width: 80px;
+  text-align: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.ranking-hint {
+  font-size: 13px;
+  color: var(--ink-60);
+}
+
+/* Submit */
+.submit-btn {
+  width: 100%;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: var(--r);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 16px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  letter-spacing: 0.02em;
+  margin-top: 8px;
+}
+
+.submit-btn:hover { background: var(--accent-mid); }
+.submit-btn:active { transform: scale(0.99); }
+.submit-btn:disabled { background: var(--ink-20); cursor: not-allowed; }
+
+/* Success toast */
+.toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--green);
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 14px 28px;
+  border-radius: 100px;
+  z-index: 9999;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  white-space: nowrap;
+}
+
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ══════════════════════════════════════════
+   DASHBOARD TAB
+══════════════════════════════════════════ */
+.dashboard-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+.dashboard-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.dashboard-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 26px;
+  color: var(--ink);
+}
+
+.dashboard-meta {
+  font-size: 13px;
+  color: var(--ink-60);
+  margin-top: 4px;
+}
+
+.export-btn {
+  background: white;
+  border: 1.5px solid var(--ink-20);
+  color: var(--ink);
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 9px 18px;
+  border-radius: var(--r);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.export-btn:hover { border-color: var(--ink); background: var(--paper); }
+
+/* Stats row */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.stat-card {
+  background: white;
+  border: 1.5px solid var(--ink-20);
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.stat-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-60);
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-family: 'DM Serif Display', serif;
+  font-size: 32px;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.stat-sub {
+  font-size: 12px;
+  color: var(--ink-60);
+  margin-top: 4px;
+}
+
+/* Project cards */
+.projects-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.project-card {
+  background: white;
+  border: 1.5px solid var(--ink-20);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.project-card:hover { border-color: var(--ink-60); }
+
+.project-card-header {
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.project-card-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+  min-width: 0;
+}
+
+.project-rank {
+  width: 36px; height: 36px;
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 14px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.project-rank.rank-1 { background: var(--gold); }
+.project-rank.rank-2 { background: #8a8a8a; }
+.project-rank.rank-3 { background: var(--accent); }
+
+.project-card-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.project-card-id {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-60);
+  margin-top: 2px;
+}
+
+.project-card-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.score-badge {
+  text-align: center;
+}
+
+.score-badge-val {
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px;
+  color: var(--ink);
+  line-height: 1;
+}
+
+.score-badge-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-60);
+  display: block;
+  margin-top: 2px;
+}
+
+.votes-count {
+  font-size: 12px;
+  color: var(--ink-60);
+  text-align: center;
+}
+
+.votes-count strong {
+  display: block;
+  font-family: 'DM Mono', monospace;
+  font-size: 16px;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.rec-pill {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 100px;
+  letter-spacing: 0.03em;
+}
+
+.rec-fin { background: var(--green-light); color: var(--green); }
+.rec-nefin { background: var(--accent-light); color: var(--accent); }
+.rec-pod { background: var(--gold-light); color: var(--gold); }
+.rec-ceka { background: var(--paper-dark); color: var(--ink-60); }
+
+.expand-icon {
+  width: 20px; height: 20px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ink-60);
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+
+.project-card.expanded .expand-icon { transform: rotate(180deg); }
+
+/* Detail panel */
+.project-card-detail {
+  display: none;
+  padding: 0 24px 20px;
+  border-top: 1px solid var(--ink-10);
+}
+
+.project-card.expanded .project-card-detail { display: block; }
+
+.detail-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-60);
+  padding: 16px 0 10px;
+  border-bottom: 1px solid var(--ink-10);
+  margin-bottom: 12px;
+}
+
+.reviews-list { display: flex; flex-direction: column; gap: 10px; }
+
+.review-item {
+  background: var(--paper);
+  border-radius: var(--r);
+  padding: 14px 16px;
+}
+
+.review-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.review-author {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.review-scores {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.review-score-pill {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  background: white;
+  border: 1px solid var(--ink-20);
+  border-radius: 4px;
+  padding: 2px 8px;
+  color: var(--ink-60);
+}
+
+.review-score-pill span {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.review-comment {
+  font-size: 13px;
+  color: var(--ink-60);
+  line-height: 1.5;
+  font-style: italic;
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--ink-60);
+}
+
+.empty-state-icon {
+  font-size: 40px;
+  margin-bottom: 16px;
+  opacity: 0.3;
+}
+
+.empty-state h3 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 20px;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════ */
+@media (max-width: 600px) {
+  .app-header { padding: 0 16px; }
+  .form-container, .dashboard-container { padding: 24px 16px 60px; }
+  .criterion-row { flex-direction: column; }
+  .star-rating { justify-content: flex-start; }
+  .project-card-right { gap: 10px; }
+  .login-card { padding: 36px 24px; }
+  .login-name-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN SCREEN ══ -->
+<div id="screen-login" class="screen active">
+  <div class="login-card">
+    <div class="login-badge">OP JAK Návraty 2026</div>
+    <h1 class="login-title">Hodnoticí<br>komise</h1>
+    <p class="login-subtitle">Univerzita Hradec Králové · OVTZ</p>
+
+    <label class="login-label">Vaše jméno</label>
+    <div class="login-name-row">
+      <input class="login-input" id="input-jmeno" type="text" placeholder="Jméno" autocomplete="given-name">
+      <input class="login-input" id="input-prijmeni" type="text" placeholder="Příjmení" autocomplete="family-name">
+    </div>
+
+    <div class="pin-row">
+      <label class="login-label">Přístupový kód</label>
+      <input class="pin-input" id="input-pin" type="password" placeholder="· · · · · · ·" maxlength="20" autocomplete="off">
+    </div>
+
+    <button class="login-btn" onclick="doLogin()">Vstoupit do aplikace →</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- ══ APP SCREEN ══ -->
+<div id="screen-app" class="screen">
+  <header class="app-header">
+    <div class="app-header-left">
+      <div class="app-logo">OP JAK <span>Návraty</span></div>
+      <div class="header-sep"></div>
+      <div class="header-user">Přihlášen: <strong id="header-username">—</strong></div>
+    </div>
+    <div class="app-header-right" style="display:flex;align-items:center;gap:8px;">
+      <nav class="header-nav">
+        <button class="nav-btn active" id="nav-form" onclick="switchTab('form')">Hodnocení</button>
+        <button class="nav-btn" id="nav-dashboard" onclick="switchTab('dashboard')">Přehled</button>
+      </nav>
+      <button class="logout-btn" onclick="doLogout()">Odhlásit</button>
+    </div>
+  </header>
+
+  <!-- FORM TAB -->
+  <div id="tab-form" class="tab-panel active">
+    <div class="form-container">
+      <div class="form-header">
+        <div class="form-eyebrow">Hodnoticí formulář</div>
+        <h2 class="form-title">Závěrečné hodnocení projektu</h2>
+        <p class="form-desc">Ohodnoťte projekt dle níže uvedených kritérií. Každé kritérium hodnoťte na stupnici 1–5.</p>
+      </div>
+
+      <!-- Project select -->
+      <div class="project-selector">
+        <label class="field-label">Vyberte projekt</label>
+        <select class="project-select" id="sel-projekt" onchange="onProjectChange()">
+          <option value="">— Vyberte projekt —</option>
+          <option value="NAVRATY-003">NAVRATY-003 | Klímová | PdF</option>
+          <option value="NAVRATY-004">NAVRATY-004 | Ambrožová | PdF</option>
+          <option value="NAVRATY-005">NAVRATY-005 | Bohunická | PřF</option>
+          <option value="NAVRATY-012">NAVRATY-012 | Malá | PřF</option>
+          <option value="NAVRATY-017">NAVRATY-017 | Sokolíčková | PdF</option>
+          <option value="NAVRATY-018">NAVRATY-018 | Nalezinková | PřF</option>
+          <option value="NAVRATY-019">NAVRATY-019 | Marko | FF</option>
+        </select>
+        <div class="project-info" id="project-info">
+          <div class="project-info-row">
+            <div class="project-info-item">
+              <span class="pil">Číslo</span>
+              <span class="piv" id="pinfo-id">—</span>
+            </div>
+            <div class="project-info-item">
+              <span class="pil">Hlavní řešitel/ka</span>
+              <span class="piv" id="pinfo-resitel">—</span>
+            </div>
+            <div class="project-info-item">
+              <span class="pil">Součást</span>
+              <span class="piv" id="pinfo-soucast">—</span>
+            </div>
+            <div class="project-info-item">
+              <span class="pil">Rozpočet</span>
+              <span class="piv" id="pinfo-rozpocet">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Score display -->
+      <div class="score-display">
+        <div>
+          <div class="score-label">Průběžné celkové skóre</div>
+          <div style="font-size:12px;color:var(--gold);opacity:0.7;margin-top:2px;">Průměr vyplněných kritérií</div>
+        </div>
+        <div>
+          <span class="score-value" id="live-score">—</span>
+          <span class="score-max"> / 5.00</span>
+        </div>
+      </div>
+
+      <!-- Criteria -->
+      <div class="section-card">
+        <div class="section-card-title">
+          <div class="section-num">1</div>
+          Hodnoticí kritéria
+        </div>
+
+        <div class="criterion-row">
+          <div class="criterion-info">
+            <div class="criterion-name">K1 — Vědecká kvalita</div>
+            <div class="criterion-desc">Originalita, metodologická rigoróznost, teoretický základ výzkumu</div>
+          </div>
+          <div class="star-rating" id="rating-k1">
+            <input type="radio" name="k1" id="k1-1" value="1"><label for="k1-1" onclick="calcScore()">1</label>
+            <input type="radio" name="k1" id="k1-2" value="2"><label for="k1-2" onclick="calcScore()">2</label>
+            <input type="radio" name="k1" id="k1-3" value="3"><label for="k1-3" onclick="calcScore()">3</label>
+            <input type="radio" name="k1" id="k1-4" value="4"><label for="k1-4" onclick="calcScore()">4</label>
+            <input type="radio" name="k1" id="k1-5" value="5"><label for="k1-5" onclick="calcScore()">5</label>
+          </div>
+        </div>
+
+        <div class="criterion-row">
+          <div class="criterion-info">
+            <div class="criterion-name">K2 — Proveditelnost</div>
+            <div class="criterion-desc">Reálnost harmonogramu, dostupnost zdrojů, zkušenosti týmu</div>
+          </div>
+          <div class="star-rating" id="rating-k2">
+            <input type="radio" name="k2" id="k2-1" value="1"><label for="k2-1" onclick="calcScore()">1</label>
+            <input type="radio" name="k2" id="k2-2" value="2"><label for="k2-2" onclick="calcScore()">2</label>
+            <input type="radio" name="k2" id="k2-3" value="3"><label for="k2-3" onclick="calcScore()">3</label>
+            <input type="radio" name="k2" id="k2-4" value="4"><label for="k2-4" onclick="calcScore()">4</label>
+            <input type="radio" name="k2" id="k2-5" value="5"><label for="k2-5" onclick="calcScore()">5</label>
+          </div>
+        </div>
+
+        <div class="criterion-row">
+          <div class="criterion-info">
+            <div class="criterion-name">K3 — Dopad a přínos</div>
+            <div class="criterion-desc">Vědecký a společenský dopad, přínos pro UHK a OP JAK cíle</div>
+          </div>
+          <div class="star-rating" id="rating-k3">
+            <input type="radio" name="k3" id="k3-1" value="1"><label for="k3-1" onclick="calcScore()">1</label>
+            <input type="radio" name="k3" id="k3-2" value="2"><label for="k3-2" onclick="calcScore()">2</label>
+            <input type="radio" name="k3" id="k3-3" value="3"><label for="k3-3" onclick="calcScore()">3</label>
+            <input type="radio" name="k3" id="k3-4" value="4"><label for="k3-4" onclick="calcScore()">4</label>
+            <input type="radio" name="k3" id="k3-5" value="5"><label for="k3-5" onclick="calcScore()">5</label>
+          </div>
+        </div>
+
+        <div class="criterion-row">
+          <div class="criterion-info">
+            <div class="criterion-name">K4 — Rozpočet</div>
+            <div class="criterion-desc">Přiměřenost a zdůvodnění nákladů, efektivita využití prostředků</div>
+          </div>
+          <div class="star-rating" id="rating-k4">
+            <input type="radio" name="k4" id="k4-1" value="1"><label for="k4-1" onclick="calcScore()">1</label>
+            <input type="radio" name="k4" id="k4-2" value="2"><label for="k4-2" onclick="calcScore()">2</label>
+            <input type="radio" name="k4" id="k4-3" value="3"><label for="k4-3" onclick="calcScore()">3</label>
+            <input type="radio" name="k4" id="k4-4" value="4"><label for="k4-4" onclick="calcScore()">4</label>
+            <input type="radio" name="k4" id="k4-5" value="5"><label for="k4-5" onclick="calcScore()">5</label>
+          </div>
+        </div>
+
+        <div class="criterion-row">
+          <div class="criterion-info">
+            <div class="criterion-name">K5 — Přínos UHK</div>
+            <div class="criterion-desc">Strategická relevance pro rozvoj UHK, soulad s prioritami instituce</div>
+          </div>
+          <div class="star-rating" id="rating-k5">
+            <input type="radio" name="k5" id="k5-1" value="1"><label for="k5-1" onclick="calcScore()">1</label>
+            <input type="radio" name="k5" id="k5-2" value="2"><label for="k5-2" onclick="calcScore()">2</label>
+            <input type="radio" name="k5" id="k5-3" value="3"><label for="k5-3" onclick="calcScore()">3</label>
+            <input type="radio" name="k5" id="k5-4" value="4"><label for="k5-4" onclick="calcScore()">4</label>
+            <input type="radio" name="k5" id="k5-5" value="5"><label for="k5-5" onclick="calcScore()">5</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ext posudky + ranking + doporuceni -->
+      <div class="section-card">
+        <div class="section-card-title">
+          <div class="section-num">2</div>
+          Závěr hodnocení
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Průměr externích posudků</label>
+          <input type="number" class="form-field" id="ext-posudky" min="1" max="5" step="0.1" placeholder="např. 3.8">
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Pořadí projektu (ranking 1–7)</label>
+          <div class="ranking-row">
+            <input type="number" class="form-field" id="poradi" min="1" max="7" step="1" placeholder="1">
+            <span class="ranking-hint">1 = nejlepší projekt, 7 = nejslabší</span>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Doporučení komise</label>
+          <select class="form-field" id="doporuceni">
+            <option value="">— Vyberte —</option>
+            <option value="Financovat">✓ Financovat</option>
+            <option value="Podmíněně financovat">~ Podmíněně financovat</option>
+            <option value="Nefinancovat">✗ Nefinancovat</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Zdůvodnění doporučení</label>
+          <textarea class="form-field" id="zduvodneni" placeholder="Stručné zdůvodnění vašeho doporučení…"></textarea>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Interní poznámka (nezobrazuje se v souhrnu)</label>
+          <textarea class="form-field" id="poznamka" placeholder="Nepovinné…" style="min-height:70px;"></textarea>
+        </div>
+      </div>
+
+      <button class="submit-btn" id="submit-btn" onclick="submitForm()">Odeslat hodnocení</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD TAB -->
+  <div id="tab-dashboard" class="tab-panel">
+    <div class="dashboard-container">
+      <div class="dashboard-header">
+        <div>
+          <h2 class="dashboard-title">Přehled hodnocení</h2>
+          <div class="dashboard-meta" id="dash-meta">Načítám data…</div>
+        </div>
+        <button class="export-btn" onclick="exportCSV()">Exportovat CSV</button>
+      </div>
+
+      <div class="stats-row" id="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Celkem hodnocení</div>
+          <div class="stat-value" id="stat-total">0</div>
+          <div class="stat-sub">ze 35 možných</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Hodnocené projekty</div>
+          <div class="stat-value" id="stat-projects">0</div>
+          <div class="stat-sub">ze 7 projektů</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Doporučeno financovat</div>
+          <div class="stat-value" id="stat-fin">0</div>
+          <div class="stat-sub">projektů</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Průměrné skóre</div>
+          <div class="stat-value" id="stat-avg">—</div>
+          <div class="stat-sub">z 5.00</div>
+        </div>
+      </div>
+
+      <div id="projects-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+// CONFIG — upravte dle potřeby
+// ══════════════════════════════════════════
+const PIN = 'N2026_1';
+
+const PROJECTS = {
+  'NAVRATY-003': { nazev: 'Alternativní pedagogika v českých školách', resitel: 'Mgr. Šárka Klímová, Ph.D.', soucast: 'PdF', rozpocet: '3 947 270 Kč' },
+  'NAVRATY-004': { nazev: 'Prevence kybernetických a psychosociálních rizik', resitel: 'Mgr. et Mgr. Petra Ambrožová, Ph.D., MBA', soucast: 'PdF', rozpocet: '5 498 444 Kč' },
+  'NAVRATY-005': { nazev: 'Environmentální limity sinic v měnícím se klimatu', resitel: 'RNDr. Markéta Bohunická, Ph.D.', soucast: 'PřF', rozpocet: '5 811 872 Kč' },
+  'NAVRATY-012': { nazev: 'Nosiče léčiv – elektronová mikroskopie a Ramanova spektroskopie', resitel: 'Mgr. Zuzana Malá, Ph.D.', soucast: 'PřF', rozpocet: '5 609 642 Kč' },
+  'NAVRATY-017': { nazev: 'Udržitelné světy – odklon od neekologických způsobů života', resitel: 'Mgr. Zdenka Sokolíčková, Ph.D.', soucast: 'PdF', rozpocet: '4 368 655 Kč' },
+  'NAVRATY-018': { nazev: 'Biodegradabilní poly(p-dioxanonové) filamenty s léčivy', resitel: 'Mgr. Martina Nalezinková, Ph.D.', soucast: 'PřF', rozpocet: '6 609 368 Kč' },
+  'NAVRATY-019': { nazev: 'Role vodních zdrojů ve vzniku sedentismu a zemědělství', resitel: 'Mgr. Anna-Marie Marko', soucast: 'FF', rozpocet: '8 310 642 Kč' },
+};
+
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let currentUser = null;
+
+function getHodnoceni() {
+  try { return JSON.parse(localStorage.getItem('navraty_hodnoceni') || '[]'); }
+  catch { return []; }
+}
+
+function saveHodnoceni(data) {
+  localStorage.setItem('navraty_hodnoceni', JSON.stringify(data));
+}
+
+// ══════════════════════════════════════════
+// LOGIN
+// ══════════════════════════════════════════
+function doLogin() {
+  const jmeno = document.getElementById('input-jmeno').value.trim();
+  const prijmeni = document.getElementById('input-prijmeni').value.trim();
+  const pin = document.getElementById('input-pin').value.trim();
+  const errEl = document.getElementById('login-error');
+
+  if (!jmeno || !prijmeni) { errEl.textContent = 'Vyplňte prosím jméno a příjmení.'; return; }
+  if (pin !== PIN) { errEl.textContent = 'Nesprávný přístupový kód.'; return; }
+
+  currentUser = `${jmeno} ${prijmeni}`;
+  document.getElementById('header-username').textContent = currentUser;
+  document.getElementById('screen-login').classList.remove('active');
+  document.getElementById('screen-app').classList.add('active');
+  errEl.textContent = '';
+}
+
+document.getElementById('input-pin').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+function doLogout() {
+  currentUser = null;
+  document.getElementById('screen-app').classList.remove('active');
+  document.getElementById('screen-login').classList.add('active');
+  document.getElementById('input-pin').value = '';
+  document.getElementById('input-jmeno').value = '';
+  document.getElementById('input-prijmeni').value = '';
+}
+
+// ══════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════
+function switchTab(tab) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(`tab-${tab}`).classList.add('active');
+  document.getElementById(`nav-${tab}`).classList.add('active');
+  if (tab === 'dashboard') renderDashboard();
+}
+
+// ══════════════════════════════════════════
+// FORM
+// ══════════════════════════════════════════
+function onProjectChange() {
+  const id = document.getElementById('sel-projekt').value;
+  const info = document.getElementById('project-info');
+  if (!id) { info.classList.remove('visible'); return; }
+  const p = PROJECTS[id];
+  document.getElementById('pinfo-id').textContent = id;
+  document.getElementById('pinfo-resitel').textContent = p.resitel;
+  document.getElementById('pinfo-soucast').textContent = p.soucast;
+  document.getElementById('pinfo-rozpocet').textContent = p.rozpocet;
+  info.classList.add('visible');
+}
+
+function getRadioVal(name) {
+  const el = document.querySelector(`input[name="${name}"]:checked`);
+  return el ? parseInt(el.value) : null;
+}
+
+function calcScore() {
+  const vals = ['k1','k2','k3','k4','k5'].map(getRadioVal).filter(v => v !== null);
+  const el = document.getElementById('live-score');
+  if (vals.length === 0) { el.textContent = '—'; return; }
+  const avg = vals.reduce((a,b) => a+b, 0) / vals.length;
+  el.textContent = avg.toFixed(2);
+}
+
+function resetForm() {
+  document.getElementById('sel-projekt').value = '';
+  document.getElementById('project-info').classList.remove('visible');
+  ['k1','k2','k3','k4','k5'].forEach(k => {
+    document.querySelectorAll(`input[name="${k}"]`).forEach(r => r.checked = false);
+  });
+  document.getElementById('live-score').textContent = '—';
+  document.getElementById('ext-posudky').value = '';
+  document.getElementById('poradi').value = '';
+  document.getElementById('doporuceni').value = '';
+  document.getElementById('zduvodneni').value = '';
+  document.getElementById('poznamka').value = '';
+}
+
+function submitForm() {
+  const projekt = document.getElementById('sel-projekt').value;
+  if (!projekt) { showToast('Vyberte prosím projekt.', 'error'); return; }
+
+  const k1 = getRadioVal('k1'), k2 = getRadioVal('k2'), k3 = getRadioVal('k3'),
+        k4 = getRadioVal('k4'), k5 = getRadioVal('k5');
+
+  if (!k1 || !k2 || !k3 || !k4 || !k5) { showToast('Vyplňte prosím všechna kritéria K1–K5.', 'error'); return; }
+
+  const doporuceni = document.getElementById('doporuceni').value;
+  if (!doporuceni) { showToast('Vyberte prosím doporučení.', 'error'); return; }
+
+  const score = ((k1+k2+k3+k4+k5)/5).toFixed(2);
+
+  const zaznam = {
+    id: Date.now(),
+    cas: new Date().toISOString(),
+    hodnotitel: currentUser,
+    projekt,
+    k1, k2, k3, k4, k5,
+    score: parseFloat(score),
+    ext_posudky: document.getElementById('ext-posudky').value || null,
+    poradi: document.getElementById('poradi').value || null,
+    doporuceni,
+    zduvodneni: document.getElementById('zduvodneni').value,
+    poznamka: document.getElementById('poznamka').value,
+  };
+
+  const hodnoceni = getHodnoceni();
+
+  // Check duplicate
+  const duplicate = hodnoceni.find(h => h.hodnotitel === currentUser && h.projekt === projekt);
+  if (duplicate) {
+    if (!confirm(`Již jste hodnotil/a projekt ${projekt}. Chcete toto hodnocení přepsat?`)) return;
+    const idx = hodnoceni.indexOf(duplicate);
+    hodnoceni.splice(idx, 1);
+  }
+
+  hodnoceni.push(zaznam);
+  saveHodnoceni(hodnoceni);
+
+  showToast(`Hodnocení projektu ${projekt} bylo uloženo.`);
+  resetForm();
+}
+
+// ══════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════
+function renderDashboard() {
+  const hodnoceni = getHodnoceni();
+
+  // Stats
+  document.getElementById('stat-total').textContent = hodnoceni.length;
+  const uniqueProjects = [...new Set(hodnoceni.map(h => h.projekt))].length;
+  document.getElementById('stat-projects').textContent = uniqueProjects;
+  const finCount = hodnoceni.filter(h => h.doporuceni === 'Financovat').length;
+  document.getElementById('stat-fin').textContent = [...new Set(
+    hodnoceni.filter(h => {
+      const proj = hodnoceni.filter(x => x.projekt === h.projekt);
+      const fin = proj.filter(x => x.doporuceni === 'Financovat').length;
+      return fin > proj.length / 2;
+    }).map(h => h.projekt)
+  )].length;
+  const allScores = hodnoceni.map(h => h.score);
+  const avgAll = allScores.length ? (allScores.reduce((a,b)=>a+b,0)/allScores.length).toFixed(2) : '—';
+  document.getElementById('stat-avg').textContent = avgAll;
+  document.getElementById('dash-meta').textContent =
+    `Celkem ${hodnoceni.length} hodnocení od ${[...new Set(hodnoceni.map(h=>h.hodnotitel))].length} členů komise · Aktualizováno ${new Date().toLocaleTimeString('cs-CZ', {hour:'2-digit',minute:'2-digit'})}`;
+
+  // Build project summaries
+  const projectData = Object.keys(PROJECTS).map(pid => {
+    const reviews = hodnoceni.filter(h => h.projekt === pid);
+    if (reviews.length === 0) return { pid, reviews: [], avgScore: 0, rec: null };
+    const avgScore = reviews.reduce((a,b) => a+b.score, 0) / reviews.length;
+    const recCounts = {};
+    reviews.forEach(r => { recCounts[r.doporuceni] = (recCounts[r.doporuceni]||0)+1; });
+    const topRec = Object.entries(recCounts).sort((a,b)=>b[1]-a[1])[0];
+    return { pid, reviews, avgScore, rec: topRec ? topRec[0] : null };
+  });
+
+  const sorted = [...projectData].sort((a,b) => b.avgScore - a.avgScore);
+
+  const container = document.getElementById('projects-list');
+
+  if (hodnoceni.length === 0) {
+    container.innerHTML = `<div class="empty-state">
+      <div class="empty-state-icon">📋</div>
+      <h3>Zatím žádná hodnocení</h3>
+      <p>Jakmile členové komise začnou hodnotit projekty, výsledky se zobrazí zde.</p>
+    </div>`;
+    return;
+  }
+
+  container.innerHTML = `<div class="projects-grid">${sorted.map((p, i) => {
+    const rank = i + 1;
+    const proj = PROJECTS[p.pid];
+    const recClass = p.rec === 'Financovat' ? 'rec-fin' :
+                     p.rec === 'Nefinancovat' ? 'rec-nefin' :
+                     p.rec === 'Podmíněně financovat' ? 'rec-pod' : 'rec-ceka';
+    const recText = p.rec || 'Čeká';
+
+    const reviewsHtml = p.reviews.map(r => `
+      <div class="review-item">
+        <div class="review-header">
+          <span class="review-author">${r.hodnotitel}</span>
+          <div class="review-scores">
+            <span class="review-score-pill">K1 <span>${r.k1}</span></span>
+            <span class="review-score-pill">K2 <span>${r.k2}</span></span>
+            <span class="review-score-pill">K3 <span>${r.k3}</span></span>
+            <span class="review-score-pill">K4 <span>${r.k4}</span></span>
+            <span class="review-score-pill">K5 <span>${r.k5}</span></span>
+            ${r.ext_posudky ? `<span class="review-score-pill">Ext <span>${r.ext_posudky}</span></span>` : ''}
+            ${r.poradi ? `<span class="review-score-pill">Pořadí <span>${r.poradi}</span></span>` : ''}
+          </div>
+        </div>
+        ${r.zduvodneni ? `<div class="review-comment">"${r.zduvodneni}"</div>` : ''}
+      </div>
+    `).join('');
+
+    return `<div class="project-card" id="pc-${p.pid}">
+      <div class="project-card-header" onclick="toggleCard('${p.pid}')">
+        <div class="project-card-left">
+          <div class="project-rank rank-${rank}">${rank}</div>
+          <div>
+            <div class="project-card-name">${proj.nazev}</div>
+            <div class="project-card-id">${p.pid} · ${proj.resitel} · ${proj.soucast}</div>
+          </div>
+        </div>
+        <div class="project-card-right">
+          <div class="score-badge">
+            <div class="score-badge-val">${p.reviews.length ? p.avgScore.toFixed(2) : '—'}</div>
+            <span class="score-badge-label">průměr</span>
+          </div>
+          <div class="votes-count">
+            <strong>${p.reviews.length}</strong>
+            hodnocení
+          </div>
+          <span class="rec-pill ${recClass}">${recText}</span>
+          <div class="expand-icon">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2 4l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="project-card-detail">
+        <div class="detail-title">Hodnocení členů komise (${p.reviews.length})</div>
+        <div class="reviews-list">${reviewsHtml || '<p style="color:var(--ink-60);font-size:13px;">Zatím žádné hodnocení.</p>'}</div>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+function toggleCard(pid) {
+  document.getElementById(`pc-${pid}`).classList.toggle('expanded');
+}
+
+// ══════════════════════════════════════════
+// EXPORT CSV
+// ══════════════════════════════════════════
+function exportCSV() {
+  const hodnoceni = getHodnoceni();
+  if (!hodnoceni.length) { showToast('Žádná data k exportu.', 'error'); return; }
+
+  const header = ['Čas','Hodnotitel','Projekt','K1','K2','K3','K4','K5','Skóre','Ext. posudky','Pořadí','Doporučení','Zdůvodnění'];
+  const rows = hodnoceni.map(h => [
+    new Date(h.cas).toLocaleString('cs-CZ'),
+    h.hodnotitel, h.projekt,
+    h.k1, h.k2, h.k3, h.k4, h.k5, h.score,
+    h.ext_posudky || '', h.poradi || '',
+    h.doporuceni, `"${(h.zduvodneni||'').replace(/"/g,'""')}"`
+  ].join(';'));
+
+  const csv = '\uFEFF' + [header.join(';'), ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `navraty_hodnoceni_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click(); URL.revokeObjectURL(url);
+}
+
+// ══════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════
+let toastTimer;
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = type === 'error' ? 'var(--accent)' : 'var(--green)';
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+</script>
+</body>
+</html>
