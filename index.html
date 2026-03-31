@@ -20,17 +20,35 @@ let dashboardData = [];
    POMOCNÉ FUNKCE
 ========================= */
 
+function parseNum(v) {
+  if (v === null || v === undefined || v === '') return null;
+  const n = parseFloat(String(v).replace(',', '.').trim());
+  return isNaN(n) ? null : n;
+}
+
 function normalizeRow(r = {}) {
+  const k1 = parseNum(r.k1 ?? r.K1 ?? r['K1'] ?? '');
+  const k2 = parseNum(r.k2 ?? r.K2 ?? r['K2'] ?? '');
+  const k3 = parseNum(r.k3 ?? r.K3 ?? r['K3'] ?? '');
+  const k4 = parseNum(r.k4 ?? r.K4 ?? r['K4'] ?? '');
+  const k5 = parseNum(r.k5 ?? r.K5 ?? r['K5'] ?? '');
+
+  let score = parseNum(r.score ?? r.Score ?? r['score '] ?? r['Score '] ?? '');
+  if (score === null) {
+    const vals = [k1, k2, k3, k4, k5].filter(v => v !== null);
+    score = vals.length ? +(vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(2) : null;
+  }
+
   return {
     cas: r.cas || r.Cas || r['čas'] || r['Čas'] || '',
-    hodnotitel: r.hodnotitel || r.Hodnotitel || r['hodnotitel '] || r['Hodnotitel '] || '',
-    projekt: r.projekt || r.Projekt || r['projekt '] || r['Projekt '] || '',
-    k1: r.k1 || r.K1 || '',
-    k2: r.k2 || r.K2 || '',
-    k3: r.k3 || r.K3 || '',
-    k4: r.k4 || r.K4 || '',
-    k5: r.k5 || r.K5 || '',
-    score: r.score || r.Score || '',
+    hodnotitel: (r.hodnotitel || r.Hodnotitel || r['hodnotitel '] || r['Hodnotitel '] || '').toString().trim(),
+    projekt: (r.projekt || r.Projekt || r['projekt '] || r['Projekt '] || '').toString().trim(),
+    k1,
+    k2,
+    k3,
+    k4,
+    k5,
+    score,
     ext_posudky: r.ext_posudky || r.Ext_posudky || r['ext. posudky'] || r['Externí posudky'] || '',
     poradi: r.poradi || r.Poradi || r.pořadí || r['Pořadí'] || '',
     doporuceni: r.doporuceni || r.Doporuceni || r.doporučení || r['Doporučení'] || '',
@@ -41,12 +59,22 @@ function normalizeRow(r = {}) {
 
 function normalizeExtRow(e = {}) {
   return {
-    projekt: e.projekt || e.Projekt || '',
+    projekt: (e.projekt || e.Projekt || '').toString().trim(),
     prumer_ext: e.prumer_ext || e.Prumer_ext || e['průměr externích posudků'] || e['Průměr externích posudků'] || '',
     odkaz_posudek1: e.odkaz_posudek1 || e.Odkaz_posudek1 || '',
     odkaz_posudek2: e.odkaz_posudek2 || e.Odkaz_posudek2 || '',
     odkaz_posudek3: e.odkaz_posudek3 || e.Odkaz_posudek3 || ''
   };
+}
+
+function dedupeLatestReviews(rows) {
+  const map = new Map();
+  rows.forEach(r => {
+    if (!r.hodnotitel || !r.projekt) return;
+    const key = `${r.hodnotitel}___${r.projekt}`;
+    map.set(key, r);
+  });
+  return [...map.values()];
 }
 
 function getRadioVal(name) {
@@ -81,8 +109,6 @@ async function init() {
   try {
     const res = await fetch(SHEET_URL + '?t=' + Date.now());
     const json = await res.json();
-
-    console.log('INIT JSON:', json);
 
     usersData = json.uzivatele || [];
     const sel = document.getElementById('select-user');
@@ -198,8 +224,8 @@ function onProjectChange() {
 
   const ext = extData[id];
   if (ext && ext.prumer_ext) {
-    const extVal = parseFloat(String(ext.prumer_ext).replace(',', '.'));
-    document.getElementById('ext-score-val').textContent = isNaN(extVal) ? ext.prumer_ext : extVal.toFixed(2);
+    const extVal = parseNum(ext.prumer_ext);
+    document.getElementById('ext-score-val').textContent = extVal === null ? ext.prumer_ext : extVal.toFixed(2);
 
     const linksEl = document.getElementById('ext-links');
     linksEl.innerHTML = '';
@@ -262,24 +288,25 @@ async function submitForm() {
   }
 
   const ext = extData[projekt];
+  const score = +(((k1 + k2 + k3 + k4 + k5) / 5).toFixed(2));
+
   const zaznam = {
     cas: new Date().toLocaleString('cs-CZ'),
     hodnotitel: currentUser.jmeno,
+    role: currentUser.role || '',
     projekt: projekt,
     k1: k1,
     k2: k2,
     k3: k3,
     k4: k4,
     k5: k5,
-    score: parseFloat(((k1 + k2 + k3 + k4 + k5) / 5).toFixed(2)),
+    score: score,
     ext_posudky: ext && ext.prumer_ext ? ext.prumer_ext : '',
     poradi: document.getElementById('poradi').value || '',
     doporuceni: doporuceni,
     zduvodneni: document.getElementById('zduvodneni').value,
     poznamka: document.getElementById('poznamka').value
   };
-
-  console.log('ODESÍLANÝ ZÁZNAM:', zaznam);
 
   document.getElementById('sending-overlay').classList.add('show');
   document.getElementById('submit-btn').disabled = true;
@@ -295,9 +322,8 @@ async function submitForm() {
     document.getElementById('sending-overlay').classList.remove('show');
     document.getElementById('submit-btn').disabled = false;
 
-    showToast(`Hodnocení projektu ${projekt} uloženo.`);
+    showToast(`Hodnocení projektu ${projekt} uloženo / přepsáno.`);
     resetForm();
-
     await loadDashboard();
   } catch (e) {
     console.error('SUBMIT ERROR:', e);
@@ -319,15 +345,11 @@ async function loadDashboard() {
     const res = await fetch(SHEET_URL + '?t=' + Date.now());
     const json = await res.json();
 
-    console.log('DASHBOARD JSON:', json);
-    console.log('RAW HODNOCENI:', json.hodnoceni);
-    console.log('PRVNÍ ZÁZNAM:', json.hodnoceni && json.hodnoceni[0]);
-
-    dashboardData = (json.hodnoceni || [])
+    const rawRows = (json.hodnoceni || [])
       .map(normalizeRow)
       .filter(r => r.hodnotitel && r.projekt);
 
-    console.log('NORMALIZOVANÁ HODNOCENÍ:', dashboardData);
+    dashboardData = dedupeLatestReviews(rawRows);
 
     extData = {};
     (json.ext || []).forEach(e => {
@@ -349,8 +371,8 @@ function renderDashboard(hodnoceni, uzivatele) {
   document.getElementById('stat-projects').textContent = [...new Set(hodnoceni.map(h => h.projekt))].length;
 
   const scores = hodnoceni
-    .map(h => parseFloat(String(h.score).replace(',', '.')))
-    .filter(s => !isNaN(s));
+    .map(h => h.score)
+    .filter(s => s !== null);
 
   document.getElementById('stat-avg').textContent =
     scores.length ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2) : '—';
@@ -367,7 +389,8 @@ function renderDashboard(hodnoceni, uzivatele) {
   if (currentUser && currentUser.role === 'správce') {
     document.getElementById('progress-section').style.display = 'block';
 
-    const hodnotitele = (uzivatele.length ? uzivatele : usersData).filter(u => u.role !== 'správce');
+    // správce je také hodnotitel, tedy nikoho nevyřazujeme
+    const hodnotitele = (uzivatele.length ? uzivatele : usersData);
 
     document.getElementById('progress-grid').innerHTML = hodnotitele.map(u => {
       const count = [...new Set(hodnoceni.filter(h => h.hodnotitel === u.jmeno).map(h => h.projekt))].length;
@@ -389,10 +412,7 @@ function renderDashboard(hodnoceni, uzivatele) {
 
   const sorted = Object.keys(PROJECTS).map(pid => {
     const reviews = hodnoceni.filter(h => h.projekt === pid);
-    const sc = reviews
-      .map(r => parseFloat(String(r.score).replace(',', '.')))
-      .filter(s => !isNaN(s));
-
+    const sc = reviews.map(r => r.score).filter(s => s !== null);
     const avg = sc.length ? sc.reduce((a, b) => a + b, 0) / sc.length : 0;
 
     const rc = {};
@@ -402,14 +422,14 @@ function renderDashboard(hodnoceni, uzivatele) {
 
     const top = Object.entries(rc).sort((a, b) => b[1] - a[1])[0];
     const ext = extData[pid];
-    const extAvgRaw = ext && ext.prumer_ext ? parseFloat(String(ext.prumer_ext).replace(',', '.')) : null;
+    const extAvgRaw = ext && ext.prumer_ext ? parseNum(ext.prumer_ext) : null;
 
     return {
       pid,
       reviews,
       avg,
       rec: top ? top[0] : null,
-      extAvg: !isNaN(extAvgRaw) ? extAvgRaw : null
+      extAvg: extAvgRaw
     };
   }).sort((a, b) => b.avg - a.avg);
 
@@ -441,14 +461,16 @@ function renderDashboard(hodnoceni, uzivatele) {
         <div class="review-header">
           <span class="review-author">${r.hodnotitel}</span>
           <div class="review-scores">
-            <span class="review-score-pill">K1 <span>${r.k1 || '—'}</span></span>
-            <span class="review-score-pill">K2 <span>${r.k2 || '—'}</span></span>
-            <span class="review-score-pill">K3 <span>${r.k3 || '—'}</span></span>
-            <span class="review-score-pill">K4 <span>${r.k4 || '—'}</span></span>
-            <span class="review-score-pill">K5 <span>${r.k5 || '—'}</span></span>
+            <span class="review-score-pill">Skóre <span>${r.score !== null ? r.score.toFixed(2) : '—'}</span></span>
+            <span class="review-score-pill">K1 <span>${r.k1 ?? '—'}</span></span>
+            <span class="review-score-pill">K2 <span>${r.k2 ?? '—'}</span></span>
+            <span class="review-score-pill">K3 <span>${r.k3 ?? '—'}</span></span>
+            <span class="review-score-pill">K4 <span>${r.k4 ?? '—'}</span></span>
+            <span class="review-score-pill">K5 <span>${r.k5 ?? '—'}</span></span>
             ${r.poradi ? `<span class="review-score-pill">Pořadí <span>${r.poradi}</span></span>` : ''}
           </div>
         </div>
+        ${r.doporuceni ? `<div class="review-comment" style="font-style:normal;margin-bottom:6px;"><strong>Doporučení:</strong> ${r.doporuceni}</div>` : ''}
         ${r.zduvodneni ? `<div class="review-comment">"${r.zduvodneni}"</div>` : ''}
       </div>
     `).join('');
@@ -481,7 +503,7 @@ function renderDashboard(hodnoceni, uzivatele) {
           </div>
         </div>
         <div class="project-card-detail">
-          <div class="detail-title">Hodnocení členů (${reviews.length})</div>
+          <div class="detail-title">Poslední platná hodnocení členů (${reviews.length})</div>
           <div class="reviews-list">
             ${rh || '<p style="color:var(--ink-60);font-size:13px;">Zatím žádné.</p>'}
           </div>
@@ -503,7 +525,11 @@ function exportCSV() {
 
   const h = ['cas', 'hodnotitel', 'projekt', 'k1', 'k2', 'k3', 'k4', 'k5', 'score', 'ext_posudky', 'poradi', 'doporuceni', 'zduvodneni', 'poznamka'];
   const rows = dashboardData.map(r =>
-    h.map(k => `"${(r[k] || '').toString().replace(/"/g, '""')}"`).join(';')
+    h.map(k => {
+      let v = r[k];
+      if (typeof v === 'number') v = String(v).replace('.', ',');
+      return `"${(v || '').toString().replace(/"/g, '""')}"`;
+    }).join(';')
   );
 
   const a = document.createElement('a');
