@@ -1,0 +1,10 @@
+{
+  "users": [
+    { "jmeno": "Jana Kukáková", "role": "správce", "pin": "JK2026" },
+    { "jmeno": "Hana Tomášková", "role": "správce", "pin": "HT2026" },
+    { "jmeno": "Vladimír Bureš", "role": "hodnotitel", "pin": "VB2026" },
+    { "jmeno": "Jiří Lipovský", "role": "hodnotitel", "pin": "JL2026" },
+    { "jmeno": "Jana Kostincová", "role": "hodnotitelka", "pin": "JKO2026" },
+    { "jmeno": "Jan Květina", "role": "hodnotitel", "pin": "JKV2026" }
+  ]
+}
